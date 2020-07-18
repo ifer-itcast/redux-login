@@ -1,68 +1,206 @@
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+## 初始化项目
 
-## Available Scripts
+```
+npx create-react-app redux-login
+```
 
-In the project directory, you can run:
+`src/index.js`
 
-### `yarn start`
+```javascript
+import React from "react";
+import ReactDOM from "react-dom";
+import App from "./App";
+ReactDOM.render(<App />, document.querySelector("#root"));
+```
 
-Runs the app in the development mode.<br />
-Open [http://localhost:3000](http://localhost:3000) to view it in the browser.
+`src/App.jsx`
 
-The page will reload if you make edits.<br />
-You will also see any lint errors in the console.
+```javascript
+import React, { Component } from "react";
 
-### `yarn test`
+export default class App extends Component {
+  render() {
+    return <div>hello world</div>;
+  }
+}
+```
 
-Launches the test runner in the interactive watch mode.<br />
-See the section about [running tests](https://facebook.github.io/create-react-app/docs/running-tests) for more information.
+## App.jsx 中加入导航，配置注册、登录、首页路由
 
-### `yarn build`
+```
+npm i react-router-dom
+```
 
-Builds the app for production to the `build` folder.<br />
-It correctly bundles React in production mode and optimizes the build for the best performance.
+`src/App.jsx`
 
-The build is minified and the filenames include the hashes.<br />
-Your app is ready to be deployed!
+```javascript
+import React, { Component } from "react";
+import { BrowserRouter as Router, Switch, Route } from "react-router-dom";
+// 导航
+import Navigator from "./pages/navigator";
+// 注册
+import Register from "./pages/register";
+// 首页
+import Home from "./pages/home";
+// 登录
+import Login from "./pages/login";
 
-See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
+export default class App extends Component {
+  render() {
+    return (
+      <Router>
+        {/* 永存 */}
+        <Navigator />
+        <Switch>
+          <Route path="/" component={Home} exact />
+          <Route path="/register" component={Register} />
+          <Route path="/login" component={Login} />
+        </Switch>
+      </Router>
+    );
+  }
+}
+```
 
-### `yarn eject`
+`src/pages/register/index.jsx`
 
-**Note: this is a one-way operation. Once you `eject`, you can’t go back!**
+```javascript
+import React, { Component } from "react";
 
-If you aren’t satisfied with the build tool and configuration choices, you can `eject` at any time. This command will remove the single build dependency from your project.
+export default class Register extends Component {
+  render() {
+    return (
+      <div className="row mt-3">
+        <div className="col-md-12">
+          <form>
+            <div className="form-group">
+              <label htmlFor="username">用户名</label>
+              <input type="username" className="form-control" id="username" />
+              <small className="form-text text-muted">
+                We'll never share your username with anyone else.
+              </small>
+            </div>
+            <div className="form-group">
+              <label htmlFor="email">邮箱</label>
+              <input type="email" className="form-control" id="email" />
+              <small className="form-text text-muted">
+                We'll never share your email with anyone else.
+              </small>
+            </div>
+            <div className="form-group">
+              <label htmlFor="password">密码</label>
+              <input type="password" className="form-control" id="password" />
+              <small className="form-text text-muted">
+                We'll never share your password with anyone else.
+              </small>
+            </div>
+            <div className="form-group">
+              <label htmlFor="passwordConfirm">密码确认</label>
+              <input
+                type="passwordConfirm"
+                className="form-control"
+                id="passwordConfirm"
+              />
+              <small className="form-text text-muted">
+                We'll never share your passwordConfirm with anyone else.
+              </small>
+            </div>
+            <button type="submit" className="btn btn-primary">
+              注册
+            </button>
+          </form>
+        </div>
+      </div>
+    );
+  }
+}
+```
 
-Instead, it will copy all the configuration files and the transitive dependencies (webpack, Babel, ESLint, etc) right into your project so you have full control over them. All of the commands except `eject` will still work, but they will point to the copied scripts so you can tweak them. At this point you’re on your own.
+`src/pages/navigator/index.jsx`
 
-You don’t have to ever use `eject`. The curated feature set is suitable for small and middle deployments, and you shouldn’t feel obligated to use this feature. However we understand that this tool wouldn’t be useful if you couldn’t customize it when you are ready for it.
+```javascript
+import React, { Component } from "react";
+import { Link } from "react-router-dom";
+import me from "./me.webp";
 
-## Learn More
+export default class Navigator extends Component {
+  render() {
+    return (
+      <nav className="navbar navbar-expand-lg navbar-light bg-light">
+        <Link to="/" className="navbar-brand">
+          <img
+            src={me}
+            alt=""
+            width="20px"
+            style={{ position: "relative", top: "-2px" }}
+          />
+        </Link>
+        <button
+          className="navbar-toggler"
+          type="button"
+          data-toggle="collapse"
+          data-target="#navbarSupportedContent"
+          aria-controls="navbarSupportedContent"
+          aria-expanded="false"
+          aria-label="Toggle navigation"
+        >
+          <span className="navbar-toggler-icon" />
+        </button>
 
-You can learn more in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
+        <div className="collapse navbar-collapse" id="navbarSupportedContent">
+          <ul className="navbar-nav mr-auto">
+            <li className="nav-item">
+              <Link to="/login" className="nav-link">
+                登录
+              </Link>
+            </li>
+            <li className="nav-item active">
+              <Link to="/register" className="nav-link">
+                注册
+              </Link>
+            </li>
+          </ul>
+        </div>
+      </nav>
+    );
+  }
+}
+```
 
-To learn React, check out the [React documentation](https://reactjs.org/).
+`src/pages/home/index.jsx`
 
-### Code Splitting
+```javascript
+import React, { Component } from "react";
 
-This section has moved here: https://facebook.github.io/create-react-app/docs/code-splitting
+export default class Home extends Component {
+  render() {
+    return (
+      <div className="jumbotron mt-3">
+        <h1>Hello ~</h1>
+      </div>
+    );
+  }
+}
+```
 
-### Analyzing the Bundle Size
+`public/index.html`
 
-This section has moved here: https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size
+```html
+<!DOCTYPE html>
+<html lang="en">
 
-### Making a Progressive Web App
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <link href="https://cdn.bootcdn.net/ajax/libs/twitter-bootstrap/4.5.0/css/bootstrap.min.css" rel="stylesheet">
+    <script src="https://cdn.bootcdn.net/ajax/libs/jquery/3.5.1/jquery.js"></script>
+    <script src="https://cdn.bootcdn.net/ajax/libs/twitter-bootstrap/4.5.0/js/bootstrap.min.js"></script>
+</head>
 
-This section has moved here: https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app
+<body>
+    <div id="root" class="container"></div>
+</body>
 
-### Advanced Configuration
-
-This section has moved here: https://facebook.github.io/create-react-app/docs/advanced-configuration
-
-### Deployment
-
-This section has moved here: https://facebook.github.io/create-react-app/docs/deployment
-
-### `yarn build` fails to minify
-
-This section has moved here: https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify
+</html>
+```
