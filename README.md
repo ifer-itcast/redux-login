@@ -204,3 +204,10 @@ export default class Home extends Component {
 
 </html>
 ```
+
+## 发起注册请求
+
+### 收集数据到 state
+
+
+
