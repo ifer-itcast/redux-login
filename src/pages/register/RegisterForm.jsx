@@ -47,7 +47,7 @@ class RegisterForm extends Component {
               <label htmlFor="username">Username</label>
               <input
                 name="username"
-                type="username"
+                type="text"
                 id="username"
                 defaultValue={userInfo.username}
                 className={classnames("form-control", {
@@ -95,7 +95,7 @@ class RegisterForm extends Component {
               <label htmlFor="passwordConfirm">Password Confirm</label>
               <input
                 name="passwordConfirm"
-                type="passwordConfirm"
+                type="password"
                 id="passwordConfirm"
                 defaultValue={userInfo.passwordConfirm}
                 className={classnames("form-control", {

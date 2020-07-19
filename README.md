@@ -886,3 +886,192 @@ module.exports = (req, res) => {
 };
 ```
 
+## 登录功能
+
+### 前端
+
+`src/pages/login/index.jsx`
+
+```javascript
+import React, { Component } from "react";
+import { connect } from 'react-redux';
+import { bindActionCreators } from 'redux';
+import LoginForm from './LoginForm';
+import * as loginActionCreators from './store/actionCreators';
+
+class Login extends Component {
+  render() {
+    return (
+      <LoginForm loginData={this.props.loginData} loginFn={this.props.loginFn}/>
+    );
+  }
+}
+
+const mapStateToProps = state => {
+  return {
+    loginData: state.login
+  };
+};
+const mapDispatchToProps = dispatch => {
+  return {
+    loginFn: bindActionCreators(loginActionCreators, dispatch)
+  };
+};
+
+export default connect(mapStateToProps, mapDispatchToProps)(Login);
+```
+
+`src/pages/login/LoginForm.jsx`
+
+```javascript
+import React, { Component } from "react";
+
+export default class LoginForm extends Component {
+  state = {
+    username: '',
+    password: ''
+  }
+  handleChange = e => {
+    this.setState({
+      [e.target.name]: e.target.value
+    });
+  }
+  handleSubmit = async e => {
+    e.preventDefault();
+    const { data } = await this.props.loginFn.loginCreator(this.state);
+    console.log(data);
+  }
+  render() {
+    const { username, password } = this.state;
+    return (
+      <div className="row mt-3">
+        <div className="col-md-12">
+          <form onSubmit={this.handleSubmit}>
+            <div className="form-group">
+              <label htmlFor="username">用户名</label>
+              <input
+                name="username"
+                type="text"
+                className="form-control"
+                id="username"
+                defaultValue={username}
+                onChange={this.handleChange}
+              />
+              <small className="form-text text-muted">
+                We'll never share your username with anyone else.
+              </small>
+            </div>
+            <div className="form-group">
+              <label htmlFor="password">密码</label>
+              <input
+                name="password"
+                type="password"
+                className="form-control"
+                id="password"
+                defaultValue={password}
+                onChange={this.handleChange}
+              />
+              <small className="form-text text-muted">
+                We'll never share your password with anyone else.
+              </small>
+            </div>
+            <button type="submit" className="btn btn-primary">
+              Sign in
+            </button>
+          </form>
+        </div>
+      </div>
+    );
+  }
+}
+```
+
+`src/pages/login/store/index.js`
+
+```javascript
+import * as actionTypes from './actionTypes';
+import * as actionCreators from './actionCreators';
+import reducer from './reducer';
+
+export { actionTypes, actionCreators, reducer };
+```
+
+`src/pages/login/store/actionCreators.js`
+
+```javascript
+import axios from '../../../utils/request';
+
+export const loginCreator = data => {
+  return diapatch => {
+    return axios.post('/api/login', data);
+  };
+};
+```
+
+`src/pages/login/store/actionTypes.js`
+
+```javascript
+export const LOGIN = 'LOGIN';
+```
+
+`src/pages/login/store/reducer.js`
+
+```javascript
+export default (state = {}, action) => {
+  switch (action.type) {
+    default:
+      return state;
+  }
+};
+```
+
+`src/store/reducer.js`
+
+```javascript
+import { combineReducers } from 'redux';
+import { reducer as registerReducer } from '../pages/register/store';
+import { reducer as flashReducer } from '../pages/flash/store';
+import { reducer as loginReducer } from '../pages/login/store';
+
+export default combineReducers({
+  register: registerReducer,
+  flash: flashReducer,
+  login: loginReducer
+});
+```
+
+### 后端
+
+```
+npm i jsonwebtoken
+```
+
+`server/routes/login.js`
+
+```javascript
+const express = require('express');
+const router = express.Router();
+const jwt = require('jsonwebtoken');
+const dbFn = require('../db');
+const config = require('../config');
+
+router.post('/login', (req, res) => {
+  const sql = 'select * from user where username=? and password=?';
+  dbFn(sql, [req.body.username, req.body.password], data => {
+    if (data.length) {
+      const token = jwt.sign({
+        id: data[0].id,
+        username: data[0].username
+      }, config.jwtSecret);
+      // 直接返回 token
+      return res.send(token);
+    }
+    res.send({
+      status: 1,
+      msg: '登录失败'
+    });
+  });
+});
+
+module.exports = router;
+```

@@ -8,6 +8,7 @@ app.use(express.urlencoded({
 app.use(express.json());
 
 app.use('/api', require('./routes/register'));
+app.use('/api', require('./routes/login'));
 
 app.use((err, req, res, next) => {
   if (err instanceof Joi.ValidationError) {
