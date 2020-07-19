@@ -205,9 +205,9 @@ export default class Home extends Component {
 </html>
 ```
 
-## 发起请求
+## 收集数据到 state
 
-### 收集数据到 state
+==后续几部做的都是发起请求的工作==
 
 ```javascript
 export default class Register extends Component {
@@ -234,13 +234,13 @@ export default class Register extends Component {
 }
 ```
 
-### 配置 Redux
+## 配置 Redux
 
 ```
 npm i redux react-redux redux-thunk redux-logger
 ```
 
-#### src/pages/register
+### src/pages/register
 
 `src/pages/register/index.jsx`
 
@@ -398,7 +398,7 @@ const reducer = (state = {}, action) => {
 export default reducer;
 ```
 
-#### src/store
+### src/store
 
 `src/store/reducer.js`
 
@@ -422,7 +422,7 @@ const composeEnhancers = (typeof window !== "undefined" && window.__REDUX_DEVTOO
 export default createStore(reducer, composeEnhancers(applyMiddleware(logger, thunk)));
 ```
 
-### 配置 axios
+## 配置 axios
 
 `src/utils/request.js`
 
@@ -431,7 +431,7 @@ import axios from 'axios';
 export default axios;
 ```
 
-### 配置代理
+## 配置代理
 
 https://www.html.cn/create-react-app/docs/proxying-api-requests-in-development/
 
@@ -459,4 +459,99 @@ module.exports = function (app) {
 };
 ```
 
-### 
+## 后端准备接口并校验数据
+
+https://www.npmjs.com/package/validator
+
+~~npm i validator~~
+
+https://hapi.dev/module/joi/#introduction
+
+```
+npm i @hapi/joi
+```
+
+`server/app.js`
+
+```javascript
+const express = require('express');
+const app = express();
+
+app.use(express.urlencoded({ extended: false }));
+app.use(express.json());
+
+app.use('/api', require('./routes/register'));
+
+app.use((err, req, res, next) => {
+  res.send({ status: 1, msg: err.message || err });
+});
+
+app.listen(8888, () => console.log('Server running on http://localhost:8888'));
+```
+
+`server/routes/register.js`
+
+```javascript
+const express = require('express');
+const router = express.Router();
+const checkData = require('../middleware/checkData');
+const { registerSchema } = require('../schema/register');
+
+router.post('/register', checkData(registerSchema), require('../routesHandler/register'));
+
+module.exports = router;
+```
+
+`server/middleware/checkData.js`
+
+```javascript
+const joi = require('@hapi/joi');
+module.exports = schemas => (req, res, next) => {
+  ['body', 'query', 'params'].forEach(item => {
+    // 如果当前循环的这一项 schema 没有提供，则不执行对应的校验
+    if (!schemas[item]) return;
+    // 执行校验，规则，数据
+    // const { error } = joi.object(data.body).validate(req.body);
+    const schema = joi.object(schemas[item]);
+    const {
+      error
+    } = schema.validate(req[item]);
+    if (error) {
+      throw error;
+    }
+  });
+  next();
+};
+```
+
+`server/schema/register.js`
+
+```javascript
+const Joi = require('@hapi/joi');
+
+const registerSchema = {
+  body: {
+    username: Joi.string().required().error(new Error('用户名不符合规范')),
+    email: Joi.string().email().required().error(new Error('邮箱不符合规范')),
+    password: Joi.string().required().error(new Error('密码不符合规范')),
+    passwordConfirm: Joi.ref('password')
+  }
+};
+module.exports = {
+  registerSchema
+};
+```
+
+`server/routesHandler/register.js`
+
+```javascript
+module.exports = (req, res) => {
+  res.send({
+    status: 0,
+    msg: '注册成功'
+  });
+};
+```
+
+## 前端错误提示
+

@@ -14,7 +14,7 @@ export default class RegisterForm extends Component {
   };
   handleSubmit = e => {
     e.preventDefault();
-    this.props.register.registerActionCreator();
+    this.props.register.registerActionCreator(this.state);
   };
   render() {
     return (
