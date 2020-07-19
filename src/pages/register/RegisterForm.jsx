@@ -30,11 +30,11 @@ class RegisterForm extends Component {
     if (data.status === 1) {
       return this.setState({ errorMsg: data.msg });
     }
-    this.props.history.push("/");
+    this.props.history.push("/login");
     this.props.flash.flashAdd({
       id: shortid.generate(),
       type: "success",
-      text: "登录成功",
+      text: "注册成功",
     });
   };
   render() {
