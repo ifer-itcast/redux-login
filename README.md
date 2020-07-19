@@ -685,3 +685,152 @@ export default withRouter(RegisterForm);
 
 ## 登录成功后的提示和删除
 
+`src/pages/register/RegisterForm.jsx`
+
+```javascript
+handleSubmit = async e => {
+  // ...
+  this.props.flash.flashAdd({ id: shortid.generate(), type: "success", text: "登录成功", });
+};
+```
+
+`src/pages/flash/index.jsx`
+
+```javascript
+import React, { Component, Fragment } from "react";
+import { connect } from 'react-redux';
+import FlashItem from "./FlashItem";
+import { flashDel } from './store/actionCreators'
+
+class Flash extends Component {
+  render() {
+    return <Fragment>
+      {
+        this.props.flash.map(item => {
+          return <FlashItem {...item} key={item.id} flashDel={this.props.flashDel}/>;
+        })
+      }
+    </Fragment>;
+  }
+}
+
+const mapStateToProps = state => {
+  return {
+    flash: state.flash
+  };
+};
+const mapDispatchToProps = dispatch => {
+  return {
+    flashDel: (id) => {
+      dispatch(flashDel(id));
+    }
+  };
+};
+
+export default connect(mapStateToProps, mapDispatchToProps)(Flash);
+```
+
+`src/pages/flash/FlashItem.jsx`
+
+```javascript
+import React, { Component } from "react";
+import classnames from "classnames";
+
+export default class FlashItem extends Component {
+  onClick = () => {
+    this.props.flashDel(this.props.id);
+  };
+  render() {
+    const { type, text } = this.props;
+    return (
+      <div
+        className={classnames("alert mt-3", {
+          "alert-success": type === "success",
+          "alert-danger": type === "danger",
+        })}
+      >
+        {text}
+        <button onClick={this.onClick} className="close">
+          &times;
+        </button>
+      </div>
+    );
+  }
+}
+```
+
+`src/pages/flash/store/index.js`
+
+```javascript
+import * as actionTypes from './actionTypes';
+import * as actionCreators from './actionCreators';
+import reducer from './reducer';
+export { actionTypes, actionCreators, reducer };
+```
+
+`src/pages/flash/store/reducer.js`
+
+```javascript
+import * as actionTypes from './actionTypes';
+import findIndex from 'lodash/findIndex';
+
+export default (state = [], action) => {
+  switch (action.type) {
+    case actionTypes.ADD_FLASH:
+      return [
+        ...state,
+        action.payload
+      ];
+    case actionTypes.DELETE_FLASH:
+      const idx = findIndex(state, {
+        id: action.payload
+      });
+      return [
+        ...state.slice(0, idx),
+        ...state.slice(idx + 1)
+      ];
+    default:
+      return state;
+  }
+};
+```
+
+`src/pages/flash/store/actionCreators.js`
+
+```javascript
+import * as actionTypes from './actionTypes';
+
+export const flashAdd = data => {
+  return {
+    type: actionTypes.ADD_FLASH,
+    payload: data
+  }
+};
+
+export const flashDel = id => {
+  return {
+    type: actionTypes.DELETE_FLASH,
+    payload: id
+  };
+};
+```
+
+`src/pages/flash/store/actionTypes.js`
+
+```javascript
+export const ADD_FLASH = 'ADD_FLASH';
+export const DELETE_FLASH = 'DELETE_FLASH';
+```
+
+`src/store/reducer.js`
+
+```javascript
+import { combineReducers } from 'redux';
+import { reducer as registerReducer } from '../pages/register/store';
+import { reducer as flashReducer } from '../pages/flash/store';
+
+export default combineReducers({
+    register: registerReducer,
+    flash: flashReducer
+});
+```

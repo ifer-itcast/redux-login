@@ -6,4 +6,3 @@ export default combineReducers({
     register: registerReducer,
     flash: flashReducer
 });
-

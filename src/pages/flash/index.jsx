@@ -1,6 +1,5 @@
 import React, { Component, Fragment } from "react";
 import { connect } from 'react-redux';
-import {} from 'redux';
 import FlashItem from "./FlashItem";
 import { flashDel } from './store/actionCreators'
 
