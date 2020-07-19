@@ -424,10 +424,39 @@ export default createStore(reducer, composeEnhancers(applyMiddleware(logger, thu
 
 ### 配置 axios
 
+`src/utils/request.js`
+
+```javascript
+import axios from 'axios';
+export default axios;
+```
+
 ### 配置代理
+
+https://www.html.cn/create-react-app/docs/proxying-api-requests-in-development/
+
+https://www.npmjs.com/package/http-proxy-middleware
 
 ```
 npm install http-proxy-middleware
+```
+
+`src/setupProxy.js`
+
+```javascript
+const {
+  createProxyMiddleware
+} = require('http-proxy-middleware');
+
+module.exports = function (app) {
+  app.use(
+    '/api',
+    createProxyMiddleware({
+      target: 'http://localhost:8888',
+      changeOrigin: true
+    })
+  )
+};
 ```
 
 ### 
