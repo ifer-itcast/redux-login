@@ -1,80 +1,108 @@
 import React, { Component } from "react";
+import { withRouter } from 'react-router-dom';
+import classnames from "classnames";
 
-export default class RegisterForm extends Component {
+class RegisterForm extends Component {
   state = {
-    username: "",
-    email: "",
-    password: "",
-    passwordConfirm: "",
+    userInfo: {
+      username: "",
+      email: "",
+      password: "",
+      passwordConfirm: "",
+    },
+    errorMsg: [],
   };
   handleChange = e => {
     this.setState({
-      [e.target.name]: e.target.value,
+      userInfo: {
+        ...this.state.userInfo,
+        [e.target.name]: e.target.value,
+      },
     });
   };
-  handleSubmit = e => {
+  handleSubmit = async e => {
     e.preventDefault();
-    this.props.register.registerActionCreator(this.state);
+    this.setState({ errorMsg: [] });
+    const { data } = await this.props.register.registerActionCreator(
+      this.state.userInfo
+    );
+    if (data.status === 1) {
+      return this.setState({ errorMsg: data.msg });
+    }
+    this.props.history.push('/');
   };
   render() {
+    const { errorMsg, userInfo } = this.state;
     return (
       <div className="row mt-3">
         <div className="col-md-12">
           <form onSubmit={this.handleSubmit}>
             <div className="form-group">
-              <label htmlFor="username">用户名</label>
+              <label htmlFor="username">Username</label>
               <input
                 name="username"
                 type="username"
-                className="form-control"
                 id="username"
+                defaultValue={userInfo.username}
+                className={classnames("form-control", {
+                  "is-invalid": errorMsg[0] === "username",
+                })}
                 onChange={this.handleChange}
               />
               <small className="form-text text-muted">
-                We'll never share your username with anyone else.
+                {errorMsg[0] === "username" && errorMsg[1]}
               </small>
             </div>
             <div className="form-group">
-              <label htmlFor="email">邮箱</label>
+              <label htmlFor="email">Email</label>
               <input
                 name="email"
                 type="email"
-                className="form-control"
                 id="email"
+                defaultValue={userInfo.email}
+                className={classnames("form-control", {
+                  "is-invalid": errorMsg[0] === "email",
+                })}
                 onChange={this.handleChange}
               />
               <small className="form-text text-muted">
-                We'll never share your email with anyone else.
+                {errorMsg[0] === "email" && errorMsg[1]}
               </small>
             </div>
             <div className="form-group">
-              <label htmlFor="password">密码</label>
+              <label htmlFor="password">Password</label>
               <input
                 name="password"
                 type="password"
-                className="form-control"
                 id="password"
+                defaultValue={userInfo.password}
+                className={classnames("form-control", {
+                  "is-invalid": errorMsg[0] === "password",
+                })}
                 onChange={this.handleChange}
               />
               <small className="form-text text-muted">
-                We'll never share your password with anyone else.
+                {errorMsg[0] === "password" && errorMsg[1]}
               </small>
             </div>
             <div className="form-group">
-              <label htmlFor="passwordConfirm">密码确认</label>
+              <label htmlFor="passwordConfirm">Password Confirm</label>
               <input
                 name="passwordConfirm"
                 type="passwordConfirm"
-                className="form-control"
                 id="passwordConfirm"
+                defaultValue={userInfo.passwordConfirm}
+                className={classnames("form-control", {
+                  "is-invalid": errorMsg[0] === "passwordConfirm",
+                })}
                 onChange={this.handleChange}
               />
               <small className="form-text text-muted">
-                We'll never share your passwordConfirm with anyone else.
+                {errorMsg[0] === "passwordConfirm" && errorMsg[1]}
               </small>
             </div>
             <button type="submit" className="btn btn-primary">
-              注册
+              Sign up for HM
             </button>
           </form>
         </div>
@@ -82,3 +110,5 @@ export default class RegisterForm extends Component {
     );
   }
 }
+
+export default withRouter(RegisterForm);

@@ -30,12 +30,12 @@ export default class Navigator extends Component {
           <ul className="navbar-nav mr-auto">
             <li className="nav-item">
               <Link to="/login" className="nav-link">
-                登录
+                Sign in
               </Link>
             </li>
             <li className="nav-item active">
               <Link to="/register" className="nav-link">
-                注册
+                Sign up
               </Link>
             </li>
           </ul>
