@@ -205,9 +205,229 @@ export default class Home extends Component {
 </html>
 ```
 
-## 发起注册请求
+## 发起请求
 
 ### 收集数据到 state
 
+```javascript
+export default class Register extends Component {
+  state = {
+    username: "",
+    email: "",
+    password: "",
+    passwordConfirm: "",
+  };
+  handleChange = e => {
+    this.setState({
+      [e.target.name]: e.target.value
+    });
+  };
+  handleSubmit = e => {
+    e.preventDefault();
+    console.log(this.state);
+  };
+  render() {
+    return (
+      <div className="row mt-3"></div>
+    );
+  }
+}
+```
 
+### 配置 Redux
 
+```
+npm i redux react-redux redux-thunk redux-logger
+```
+
+#### src/pages/register
+
+`src/pages/register/index.jsx`
+
+```javascript
+import React, { Component } from "react";
+import { connect } from "react-redux";
+import { bindActionCreators } from "redux";
+import { actionCreators } from "./store";
+import RegisterFrom from "./RegisterForm";
+
+class Register extends Component {
+  render() {
+    return <RegisterFrom register={this.props.register} />;
+  }
+}
+
+const mapStateToProps = state => {
+  return {
+    register: state.register,
+  };
+};
+const mapDispatchToProps = dispatch => {
+  return {
+    /* register: function() {
+      dispatch(registerActionCreator());
+    } */
+    register: bindActionCreators(actionCreators, dispatch),
+  };
+};
+
+export default connect(mapStateToProps, mapDispatchToProps)(Register);
+```
+
+`src/pages/register/RegisterForm.jsx`
+
+```javascript
+import React, { Component } from "react";
+
+export default class RegisterForm extends Component {
+  state = {
+    username: "",
+    email: "",
+    password: "",
+    passwordConfirm: "",
+  };
+  handleChange = e => {
+    this.setState({
+      [e.target.name]: e.target.value,
+    });
+  };
+  handleSubmit = e => {
+    e.preventDefault();
+    this.props.register.registerActionCreator();
+  };
+  render() {
+    return (
+      <div className="row mt-3">
+        <div className="col-md-12">
+          <form onSubmit={this.handleSubmit}>
+            <div className="form-group">
+              <label htmlFor="username">用户名</label>
+              <input
+                name="username"
+                type="username"
+                className="form-control"
+                id="username"
+                onChange={this.handleChange}
+              />
+              <small className="form-text text-muted">
+                We'll never share your username with anyone else.
+              </small>
+            </div>
+            <div className="form-group">
+              <label htmlFor="email">邮箱</label>
+              <input
+                name="email"
+                type="email"
+                className="form-control"
+                id="email"
+                onChange={this.handleChange}
+              />
+              <small className="form-text text-muted">
+                We'll never share your email with anyone else.
+              </small>
+            </div>
+            <div className="form-group">
+              <label htmlFor="password">密码</label>
+              <input
+                name="password"
+                type="password"
+                className="form-control"
+                id="password"
+                onChange={this.handleChange}
+              />
+              <small className="form-text text-muted">
+                We'll never share your password with anyone else.
+              </small>
+            </div>
+            <div className="form-group">
+              <label htmlFor="passwordConfirm">密码确认</label>
+              <input
+                name="passwordConfirm"
+                type="passwordConfirm"
+                className="form-control"
+                id="passwordConfirm"
+                onChange={this.handleChange}
+              />
+              <small className="form-text text-muted">
+                We'll never share your passwordConfirm with anyone else.
+              </small>
+            </div>
+            <button type="submit" className="btn btn-primary">
+              注册
+            </button>
+          </form>
+        </div>
+      </div>
+    );
+  }
+}
+```
+
+`src/pages/register/store/index.js`
+
+```javascript
+import * as actionTypes from './actionTypes';
+import * as actionCreators from './actionCreators';
+import reducer from './reducer';
+
+export { actionTypes, actionCreators, reducer };
+```
+
+`src/pages/register/store/actionCreators.js`
+
+```javascript
+import axios from 'axios';
+
+export const registerActionCreator = user => {
+  return dispatch => {
+    // 不一定要 dispatch 到 redux 里面
+    return axios.post('/api/register', user);
+  };
+};
+```
+
+`src/pages/register/store/reducer.js`
+
+```javascript
+const reducer = (state = {}, action) => {
+  switch (action.type) {
+    default:
+      return state;
+  }
+};
+export default reducer;
+```
+
+#### src/store
+
+`src/store/reducer.js`
+
+```javascript
+import { combineReducers } from 'redux';
+import { reducer as registerReducer } from '../pages/register/store';
+
+export default combineReducers({
+  register: registerReducer 
+});
+```
+
+`src/store/index.js`
+
+```javascript
+import { createStore, compose, applyMiddleware } from 'redux';
+import reducer from './reducer';
+import logger from 'redux-logger';
+import thunk from 'redux-thunk';
+const composeEnhancers = (typeof window !== "undefined" && window.__REDUX_DEVTOOLS_EXTENSION_COMPOSE__) || compose;
+export default createStore(reducer, composeEnhancers(applyMiddleware(logger, thunk)));
+```
+
+### 配置 axios
+
+### 配置代理
+
+```
+npm install http-proxy-middleware
+```
+
+### 

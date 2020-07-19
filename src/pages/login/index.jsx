@@ -8,14 +8,14 @@ export default class Login extends Component {
           <form>
             <div className="form-group">
               <label htmlFor="username">用户名</label>
-              <input type="username" className="form-control" id="username" />
+              <input name="username" type="username" className="form-control" id="username" />
               <small className="form-text text-muted">
                 We'll never share your username with anyone else.
               </small>
             </div>
             <div className="form-group">
               <label htmlFor="password">密码</label>
-              <input type="password" className="form-control" id="password" />
+              <input name="password" type="password" className="form-control" id="password" />
               <small className="form-text text-muted">
                 We'll never share your password with anyone else.
               </small>
