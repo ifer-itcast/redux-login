@@ -11,6 +11,7 @@
     "classnames": "^2.2.6",
     "http-proxy-middleware": "^1.0.5",
     "jsonwebtoken": "^8.5.1",
+    "jwt-decode": "^2.2.0",
     "lodash": "^4.17.19",
     "mysql": "^2.18.1",
     "react": "^16.13.1",

@@ -1,6 +1,7 @@
 import React, { Component } from "react";
-
-export default class LoginForm extends Component {
+import jwtDecode from 'jwt-decode';
+import { withRouter } from 'react-router-dom';
+class LoginForm extends Component {
   state = {
     username: '',
     password: ''
@@ -13,7 +14,14 @@ export default class LoginForm extends Component {
   handleSubmit = async e => {
     e.preventDefault();
     const { data } = await this.props.loginFn.loginCreator(this.state);
-    console.log(data);
+    // 这些都可以迁移到 loginCreator 里
+    if (data.status === 0) {
+      // 设置 token
+      localStorage.setItem('TOKEN', data.token);
+      // 解析 token 到 redux
+      this.props.loginFn.setUserInfo(jwtDecode(data.token));
+      this.props.history.push('/');
+    }
   }
   render() {
     const { username, password } = this.state;
@@ -58,3 +66,4 @@ export default class LoginForm extends Component {
     );
   }
 }
+export default withRouter(LoginForm);

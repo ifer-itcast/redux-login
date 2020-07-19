@@ -1075,3 +1075,229 @@ router.post('/login', (req, res) => {
 
 module.exports = router;
 ```
+
+## Token 处理
+
+### 请求头携带 Token
+
+`src/utils/request.js`
+
+```javascript
+import axios from 'axios';
+
+axios.interceptors.request.use(config => {
+  const tk = localStorage.getItem('TOKEN');
+  const {
+    url
+  } = config;
+  const passUrl = ['/api/register', '/api/login'];
+  // 登录、注册无需携带 token
+  if (passUrl.includes(url)) return config;
+  if (tk) {
+    config.headers.Authorization = tk;
+  } else {
+    delete config.headers.Authorization;
+  }
+  return config;
+});
+
+axios.interceptors.response.use(response => {
+  const { status } = response.data;
+  // 和后端确定 token 失效的返回信息，统一删除 token
+	if (status === 400) {
+		// 此时，说明 token 失效，直接移除 token 即可
+		// 删除 token
+	}
+	return response;
+});
+
+export default axios;
+```
+
+### 登录成功后前端存储 token，解析 token 信息并同步到 Redux
+
+```
+npm i jwt-decode
+```
+
+`src/pages/login/LoginForm.jsx`
+
+```javascript
+handleSubmit = async e => {
+  e.preventDefault();
+  const { data } = await this.props.loginFn.loginCreator(this.state);
+  if (data.status === 0) {
+    // 设置 token
+    localStorage.setItem('TOKEN', data.token);
+    // 解析 token 到 redux
+    this.props.loginFn.setUserInfo(jwtDecode(data.token));
+  }
+}
+```
+
+`src/pages/login/store/reducer.js`
+
+```javascript
+import * as actionTypes from './actionTypes';
+import isEmpty from 'lodash/isEmpty';
+
+const initState = {
+  isAuth: false,
+  user: {}
+};
+export default (state = initState, action) => {
+  switch (action.type) {
+    case actionTypes.SET_USERINFO:
+      return {
+        isAuth: !isEmpty(action.payload),
+        user: action.payload
+      }
+    default:
+      return state;
+  }
+};
+```
+
+`src/pages/login/store/actionCreators.js`
+
+```javascript
+import * as actionTypes from './actionTypes';
+import axios from '../../../utils/request';
+
+export const loginCreator = data => {
+  return diapatch => {
+    // 也可以直接在这里的 then 里存储 token 到本地，解析 token 到 redux
+    // then 的返回值也是 Promise
+    return axios.post('/api/login', data);
+  };
+};
+
+export const setUserInfo = data => {
+  return {
+    type: actionTypes.SET_USERINFO,
+    payload: data
+  }
+};
+```
+
+`src/pages/login/store/actionTypes.js`
+
+```javascript
+export const LOGIN = 'LOGIN';
+export const SET_USERINFO = 'SET_USERINFO';
+```
+
+刷新是解析 token 并同步到 Redux
+
+`src/index.js`
+
+```javascript
+import React from "react";
+import ReactDOM from "react-dom";
+import App from "./App";
+
+import store from './store';
+import { Provider } from 'react-redux';
+import { setUserInfo } from './pages/login/store/actionCreators';
+
+const tk = localStorage.getItem('TOKEN');
+if (tk) store.dispatch(setUserInfo(tk));
+
+ReactDOM.render(<Provider store={store}>
+  <App />
+</Provider>, document.querySelector("#root"));
+```
+
+## 退出
+
+`src/pages/login/store/actionCreators.js`
+
+```javascript
+export const logout = () => {
+  return dispatch => {
+    // 利用 redux-thunk 可以写函数的特性，可以在里面进行逻辑处理
+    // #1
+    localStorage.removeItem('TOKEN');
+    // #2 删除请求头
+    // # 清除 Redux 中的数据
+    dispatch(setUserInfo({}));
+  };
+};
+```
+
+`src/pages/navigator/index.jsx`
+
+```javascript
+import React, { Component } from "react";
+import { Link } from "react-router-dom";
+import { connect } from "react-redux";
+import { logout } from "../login/store/actionCreators";
+import me from "./me.webp";
+
+class Navigator extends Component {
+  render() {
+    return (
+      <nav className="navbar navbar-expand-lg navbar-light bg-light">
+        <Link to="/" className="navbar-brand">
+          <img
+            src={me}
+            alt=""
+            width="20px"
+            style={{ position: "relative", top: "-2px" }}
+          />
+        </Link>
+        <button
+          className="navbar-toggler"
+          type="button"
+          data-toggle="collapse"
+          data-target="#navbarSupportedContent"
+          aria-controls="navbarSupportedContent"
+          aria-expanded="false"
+          aria-label="Toggle navigation"
+        >
+          <span className="navbar-toggler-icon" />
+        </button>
+
+        <div className="collapse navbar-collapse" id="navbarSupportedContent">
+          {this.props.login.isAuth
+            ? <ul className="navbar-nav mr-auto">
+                <li className="nav-item">
+                  <a
+                    className="nav-link"
+                    href="###"
+                    onClick={this.props.logout}
+                  >
+                    Sign out
+                  </a>
+                </li>
+              </ul>
+            : <ul className="navbar-nav mr-auto">
+                <li className="nav-item">
+                  <Link to="/login" className="nav-link">
+                    Sign in
+                  </Link>
+                </li>
+                <li className="nav-item active">
+                  <Link to="/register" className="nav-link">
+                    Sign up
+                  </Link>
+                </li>
+              </ul>}
+        </div>
+      </nav>
+    );
+  }
+}
+
+const mapStateToProps = state => {
+  return {
+    login: state.login,
+  };
+};
+
+export default connect(mapStateToProps, { logout })(Navigator);
+```
+
+## 思考
+
+发起异步请求的操作都写在 actionCreator 里还是组件里，还是两者结合起来（then 返回的也是 Promise 可以继续在组件中写）

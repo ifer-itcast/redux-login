@@ -13,7 +13,10 @@ router.post('/login', (req, res) => {
         username: data[0].username
       }, config.jwtSecret);
       // 直接返回 token
-      return res.send(token);
+      return res.send({
+        status: 0,
+        token
+      });
     }
     res.send({
       status: 1,
