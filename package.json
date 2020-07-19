@@ -19,6 +19,7 @@
     "redux": "^4.0.5",
     "redux-logger": "^3.0.6",
     "redux-thunk": "^2.3.0",
+    "shortid": "^2.2.15",
     "validator": "^13.1.1"
   },
   "scripts": {

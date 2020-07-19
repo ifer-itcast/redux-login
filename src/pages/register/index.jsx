@@ -1,12 +1,13 @@
 import React, { Component } from "react";
 import { connect } from "react-redux";
 import { bindActionCreators } from "redux";
-import { actionCreators } from "./store";
+import { actionCreators as registerActionCreators } from "./store";
+import { actionCreators as flashActionCreators } from '../flash/store';
 import RegisterFrom from "./RegisterForm";
 
 class Register extends Component {
   render() {
-    return <RegisterFrom register={this.props.register} />;
+    return <RegisterFrom register={this.props.register} flash={this.props.flash} />;
   }
 }
 
@@ -20,7 +21,8 @@ const mapDispatchToProps = dispatch => {
     /* register: function() {
       dispatch(registerActionCreator());
     } */
-    register: bindActionCreators(actionCreators, dispatch),
+    register: bindActionCreators(registerActionCreators, dispatch),
+    flash: bindActionCreators(flashActionCreators, dispatch)
   };
 };
 

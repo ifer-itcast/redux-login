@@ -562,15 +562,16 @@ module.exports = (req, res) => {
 };
 ```
 
-## 前端错误提示
+## 前端登录错误提示和登录成功后跳转
 
 `src/pages/register/RegisterForm.jsx`
 
 ```javascript
 import React, { Component } from "react";
+import { withRouter } from 'react-router-dom';
 import classnames from "classnames";
 
-export default class RegisterForm extends Component {
+class RegisterForm extends Component {
   state = {
     userInfo: {
       username: "",
@@ -594,7 +595,10 @@ export default class RegisterForm extends Component {
     const { data } = await this.props.register.registerActionCreator(
       this.state.userInfo
     );
-    this.setState({ errorMsg: data.msg });
+    if (data.status === 1) {
+      return this.setState({ errorMsg: data.msg });
+    }
+    this.props.history.push('/');
   };
   render() {
     const { errorMsg, userInfo } = this.state;
@@ -675,4 +679,9 @@ export default class RegisterForm extends Component {
     );
   }
 }
+
+export default withRouter(RegisterForm);
 ```
+
+## 登录成功后的提示和删除
+

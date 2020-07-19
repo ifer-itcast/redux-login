@@ -8,6 +8,8 @@ import Register from "./pages/register";
 import Home from "./pages/home";
 // 登录
 import Login from "./pages/login";
+// 提示
+import Flash from "./pages/flash";
 
 export default class App extends Component {
   render() {
@@ -15,6 +17,7 @@ export default class App extends Component {
       <Router>
         {/* 永存 */}
         <Navigator />
+        <Flash/>
         <Switch>
           <Route path="/" component={Home} exact />
           <Route path="/register" component={Register} />

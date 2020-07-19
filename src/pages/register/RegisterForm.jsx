@@ -1,6 +1,7 @@
 import React, { Component } from "react";
-import { withRouter } from 'react-router-dom';
+import { withRouter } from "react-router-dom";
 import classnames from "classnames";
+import shortid from 'shortid';
 
 class RegisterForm extends Component {
   state = {
@@ -29,7 +30,12 @@ class RegisterForm extends Component {
     if (data.status === 1) {
       return this.setState({ errorMsg: data.msg });
     }
-    this.props.history.push('/');
+    this.props.history.push("/");
+    this.props.flash.flashAdd({
+      id: shortid.generate(),
+      type: "success",
+      text: "登录成功",
+    });
   };
   render() {
     const { errorMsg, userInfo } = this.state;
