@@ -10,6 +10,10 @@ import Home from "./pages/home";
 import Login from "./pages/login";
 // 提示
 import Flash from "./pages/flash";
+// 用户
+import User from './pages/user';
+// 权限
+import Auth from './utils/auth';
 
 export default class App extends Component {
   render() {
@@ -22,6 +26,7 @@ export default class App extends Component {
           <Route path="/" component={Home} exact />
           <Route path="/register" component={Register} />
           <Route path="/login" component={Login} />
+          <Route path="/user" component={Auth(User)} />
         </Switch>
       </Router>
     );
